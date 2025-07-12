@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Timer, X, Check, Plus, AlertTriangle, Clock } from "lucide-react";
+import { useState } from "react";
 
 export default function FocusSessionPage() {
   return (

@@ -18,6 +18,7 @@ import StreaksRewardsPage from "./pages/StreaksRewardsPage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import DistractionPage from "./pages/DistractionsPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,6 +29,7 @@ const router = createBrowserRouter(
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="focus-session" element={<FocusSessionPage />} />
         <Route path="log-distraction" element={<LogDistractionPage />} />
+        <Route path="distraction" element={<DistractionPage />} />
         <Route path="insights" element={<AIIntelligencePage />} />
         <Route path="rewards" element={<StreaksRewardsPage />} />
         <Route path="settings" element={<SettingsPage />} />

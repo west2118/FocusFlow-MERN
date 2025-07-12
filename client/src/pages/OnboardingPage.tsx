@@ -9,9 +9,79 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "@/hooks/useForm";
+import { weeklyTargets } from "@/constants/weeklyTarget";
+import { dailyTargets } from "@/constants/dailyTarget";
+import { workCategories } from "@/constants/workCategories";
+import { useState } from "react";
+import { distractions } from "@/constants/distractions";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { auth } from "@/firebase";
+import { Loader } from "lucide-react";
+
+type FormData = {
+  dailyTarget: string;
+  weeklyTarget: string;
+};
 
 export default function OnboardingPage() {
+  const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [workCategoriesData, setWorkCategoriesData] = useState<string[]>([]);
+  const [distractionsData, setDistractionsData] = useState<string[]>([]);
+
+  const { formData, handleChange } = useForm<FormData>({
+    dailyTarget: "",
+    weeklyTarget: "",
+  });
+
+  const handleSubmit = async () => {
+    if (
+      Object.values(formData).some((value) => value.trim() === "") ||
+      distractionsData.length === 0 ||
+      workCategoriesData.length === 0
+    ) {
+      return toast.error("Missing Required Field");
+    }
+
+    setIsLoading(true);
+
+    const token = await auth.currentUser?.getIdToken();
+
+    const addedData = {
+      dailyTarget: formData.dailyTarget,
+      weeklyTarget: formData.weeklyTarget,
+      workCategories: workCategoriesData,
+      distractions: distractionsData,
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/user",
+        {
+          ...addedData,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(response?.data);
+
+      toast.success("Account info updated successfully!");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8 pt-28">
       <div className="max-w-3xl mx-auto ">
@@ -23,10 +93,10 @@ export default function OnboardingPage() {
             Your personal productivity coach
           </p>
 
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <Progress value={33} className="h-2 bg-indigo-100" />
             <p className="text-sm text-indigo-600 mt-2">Step 1 of 3</p>
-          </div>
+          </div> */}
         </div>
 
         <div className="space-y-8">
@@ -49,13 +119,19 @@ export default function OnboardingPage() {
                     </Label>
                     <div className="relative">
                       <select
+                        name="dailyTarget"
+                        value={formData.dailyTarget}
+                        onChange={handleChange}
                         id="daily-hours"
                         className="block w-full px-4 py-2 border border-indigo-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option>1 hour/day</option>
-                        <option>2 hours/day</option>
-                        <option selected>3 hours/day</option>
-                        <option>4 hours/day</option>
-                        <option>5+ hours/day</option>
+                        <option disabled value="">
+                          Select daily target
+                        </option>
+                        {dailyTargets.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -67,12 +143,18 @@ export default function OnboardingPage() {
                     <div className="relative">
                       <select
                         id="weekly-days"
+                        name="weeklyTarget"
+                        value={formData.weeklyTarget}
+                        onChange={handleChange}
                         className="block w-full px-4 py-2 border border-indigo-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option>3 days/week</option>
-                        <option>4 days/week</option>
-                        <option selected>5 days/week</option>
-                        <option>6 days/week</option>
-                        <option>7 days/week</option>
+                        <option disabled value="">
+                          Select weekly target
+                        </option>
+                        {weeklyTargets.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -93,26 +175,19 @@ export default function OnboardingPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  "Study",
-                  "Coding",
-                  "Reading",
-                  "Creative Work",
-                  "Writing",
-                  "Research",
-                  "Planning",
-                  "Other",
-                ].map((category) => (
+                {workCategories.map((category) => (
                   <div key={category} className="flex items-center space-x-3">
                     <Checkbox
                       id={`category-${category}`}
-                      defaultChecked={[
-                        "Study",
-                        "Coding",
-                        "Reading",
-                        "Creative Work",
-                      ].includes(category)}
-                      className="h-5 w-5 border-indigo-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                      checked={workCategoriesData.includes(category)}
+                      onCheckedChange={(checked) => {
+                        setWorkCategoriesData((prev) =>
+                          checked
+                            ? [...prev, category]
+                            : prev.filter((item) => item !== category)
+                        );
+                      }}
+                      className="h-5 w-5 border-indigo-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600 text-white"
                     />
                     <Label
                       htmlFor={`category-${category}`}
@@ -137,28 +212,21 @@ export default function OnboardingPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  "YouTube",
-                  "TikTok",
-                  "Gaming",
-                  "News Sites",
-                  "Social Media",
-                  "Email",
-                  "Phone",
-                  "Other",
-                ].map((distraction) => (
+                {distractions.map((distraction) => (
                   <div
                     key={distraction}
                     className="flex items-center space-x-3">
                     <Checkbox
                       id={`distraction-${distraction}`}
-                      defaultChecked={[
-                        "YouTube",
-                        "TikTok",
-                        "Gaming",
-                        "News Sites",
-                      ].includes(distraction)}
-                      className="h-5 w-5 border-indigo-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                      checked={distractionsData.includes(distraction)}
+                      onCheckedChange={(checked) => {
+                        setDistractionsData((prev) =>
+                          checked
+                            ? [...prev, distraction]
+                            : prev.filter((item) => item !== distraction)
+                        );
+                      }}
+                      className="h-5 w-5 border-indigo-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600 text-white"
                     />
                     <Label
                       htmlFor={`distraction-${distraction}`}
@@ -174,15 +242,18 @@ export default function OnboardingPage() {
           {/* Navigation Buttons */}
           <div className="flex justify-between">
             <Button
+              disabled={isLoading}
               variant="outline"
               className="border-indigo-300 text-indigo-700 hover:bg-indigo-50">
               Back
             </Button>
-            <Link to="/dashboard">
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
-                Continue Setup
-              </Button>
-            </Link>
+            <Button
+              disabled={isLoading}
+              onClick={handleSubmit}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              {isLoading ? <Loader className="animate-spin h-5 w-5" /> : ""}
+              Continue Setup
+            </Button>
           </div>
         </div>
       </div>

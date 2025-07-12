@@ -21,16 +21,18 @@ const Navbar = () => {
           <Button variant="ghost" className="text-indigo-700">
             About
           </Button>
-          <Link to="/onboarding">
+          <Link to="/login">
             <Button
               variant="outline"
               className="border-indigo-300 text-indigo-700">
               Login
             </Button>
           </Link>
-          <Button className="bg-indigo-600 hover:bg-indigo-700">
-            Get Started
-          </Button>
+          <Link to="/register">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              Get Started
+            </Button>
+          </Link>
         </div>
 
         {/* <h1 className="text-xl font-bold text-indigo-800">FocusFlow</h1>
