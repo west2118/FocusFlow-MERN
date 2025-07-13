@@ -12,9 +12,102 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Timer, X, Check, Plus, AlertTriangle, Clock } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { formatTime } from "@/constants/formatTime";
+import { timers } from "@/constants/timers";
+import { useUserStore } from "@/store/useUserStore";
+
+const FOCUS_TIME = 25 * 60;
+const BREAK_TIME = 5 * 60;
 
 export default function FocusSessionPage() {
+  const [selectedBreakTime, setSelectedBreakTime] =
+    useState<number>(BREAK_TIME);
+  const [selectedFocusTime, setSelectedFocusTime] =
+    useState<number>(FOCUS_TIME);
+  const [secondsLeft, setSecondsLeft] = useState<number>(FOCUS_TIME);
+  const [isFocus, setIsFocus] = useState<boolean>(true);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const intervalRef = useRef<number | null>(null);
+  const userBlockedSite = useUserStore((state) => state.user?.blockedSite);
+
+  const sendBlockSitesToExtension = (sitesToBlock: string[]) => {
+    if (
+      typeof chrome !== "undefined" &&
+      chrome.runtime &&
+      chrome.runtime.sendMessage &&
+      Array.isArray(sitesToBlock)
+    ) {
+      chrome.runtime.sendMessage(
+        "pobbkcognmamcphilkbbhajgpbehakpe",
+        {
+          action: "updateBlockedSites",
+          sites: sitesToBlock,
+        },
+        (response) => {
+          console.log("Extension response:", response);
+        }
+      );
+    } else {
+      console.warn("Chrome extension not available");
+    }
+  };
+
+  useEffect(() => {
+    if (isRunning) {
+      sendBlockSitesToExtension(userBlockedSite ?? []);
+
+      intervalRef.current = window.setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            if (intervalRef.current !== null) {
+              clearInterval(intervalRef.current);
+            }
+
+            const nextFocus = !isFocus;
+            setIsFocus(nextFocus);
+            setIsRunning(false);
+            return nextFocus ? selectedFocusTime : selectedBreakTime;
+          }
+
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      sendBlockSitesToExtension([]);
+    }
+
+    return () => {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isRunning]);
+
+  useEffect(() => {
+    const handleExit = () => {
+      if (isRunning) {
+        sendBlockSitesToExtension([]);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleExit);
+    return () => window.removeEventListener("beforeunload", handleExit);
+  }, [isRunning]);
+
+  const handleStart = () => setIsRunning(true);
+
+  const handleReset = () => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+    }
+
+    setIsRunning(false);
+    setIsFocus(true);
+    setSecondsLeft(selectedFocusTime);
+    sendBlockSitesToExtension([]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 pt-30">
       <Card className="w-full max-w-md">
@@ -42,19 +135,22 @@ export default function FocusSessionPage() {
           <div className="space-y-2">
             <Label>Timer Duration</Label>
             <div className="grid grid-cols-3 gap-2">
-              {[
-                { label: "25 min", value: "25", desc: "Pomodoro" },
-                { label: "50 min", value: "50", desc: "Double" },
-                { label: "Custom", value: "custom" },
-              ].map((option) => (
+              {timers.map((option: any) => (
                 <div key={option.value} className="h-full">
                   <input
                     type="radio"
                     id={`duration-${option.value}`}
                     name="duration"
                     value={option.value}
+                    onChange={(e) => {
+                      if (option.value !== "custom") {
+                        setSelectedBreakTime(option.breakTime);
+                        setSelectedFocusTime(Number(e.target.value));
+                        setSecondsLeft(Number(e.target.value));
+                      }
+                    }}
                     className="hidden peer"
-                    defaultChecked={option.value === "25"}
+                    defaultChecked={option.desc === "Pomodoro"}
                   />
                   <Label
                     htmlFor={`duration-${option.value}`}
@@ -74,13 +170,17 @@ export default function FocusSessionPage() {
           {/* Active Timer Display (Static) */}
           <div className="flex flex-col items-center py-6">
             <div className="text-5xl font-mono font-bold text-indigo-800 mb-2">
-              25:00
+              {formatTime(secondsLeft)}
             </div>
             <div className="flex gap-2">
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button onClick={handleReset} variant="outline">
+                Reset
+              </Button>
+              <Button
+                onClick={handleStart}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white">
                 Start Session
               </Button>
-              <Button variant="outline">Cancel</Button>
             </div>
           </div>
 

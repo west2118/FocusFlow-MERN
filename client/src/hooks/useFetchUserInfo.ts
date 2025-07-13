@@ -4,8 +4,8 @@ import axios from "axios";
 import { useEffect } from "react";
 
 export const useFetchUserInfo = () => {
-  const setUserToken = useUserStore((state) => state.userToken);
-  const setUser = useUserStore((state) => state.user);
+  const setUserToken = useUserStore((state) => state.setUserToken);
+  const setUser = useUserStore((state) => state.setUser);
   const clearUser = useUserStore((state) => state.clearUser);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export const useFetchUserInfo = () => {
 
     const unsubscribe = auth.onIdTokenChanged(async (user) => {
       const newToken = await user?.getIdToken();
-      setUserToken(newToken);
+      setUserToken(newToken ?? null);
 
       if (newToken) {
         await fetchUserInfo(newToken);

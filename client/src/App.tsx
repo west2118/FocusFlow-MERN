@@ -19,6 +19,7 @@ import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DistractionPage from "./pages/DistractionsPage";
+import { useFetchUserInfo } from "./hooks/useFetchUserInfo";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -42,6 +43,8 @@ const router = createBrowserRouter(
 );
 
 function App() {
+  useFetchUserInfo();
+
   return (
     <>
       <ToastContainer />

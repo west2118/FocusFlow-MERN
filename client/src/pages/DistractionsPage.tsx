@@ -30,6 +30,7 @@ import { useState } from "react";
 import axios from "axios";
 import { auth } from "@/firebase";
 import { toast } from "react-toastify";
+import { useUserStore } from "@/store/useUserStore";
 
 // Sample distraction data
 const distractions = [
@@ -74,6 +75,7 @@ function getDistractionColor(type: any) {
 
 export default function DistractionDashboard() {
   const [siteText, setSiteText] = useState("");
+  const user = useUserStore((state) => state.user);
 
   const handleAddBlockSite = async () => {
     if (siteText.trim().length === 0) {
@@ -180,12 +182,7 @@ export default function DistractionDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    {[
-                      "twitter.com",
-                      "youtube.com",
-                      "facebook.com",
-                      "instagram.com",
-                    ].map((site, index) => (
+                    {user?.blockedSite.map((site, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between p-3 border rounded-lg">

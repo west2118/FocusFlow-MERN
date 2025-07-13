@@ -64,6 +64,10 @@ const postBlockSite = async (req, res) => {
       return res.status(400).json({ message: "User didn't exist" });
     }
 
+    if (user.blockedSite.includes(site)) {
+      return res.status(400).json({ message: "Site is already in block site" });
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { uid },
       { $addToSet: { blockedSite: site } },
