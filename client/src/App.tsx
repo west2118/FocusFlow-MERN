@@ -30,7 +30,7 @@ const router = createBrowserRouter(
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="focus-session" element={<FocusSessionPage />} />
         <Route path="log-distraction" element={<LogDistractionPage />} />
-        <Route path="distraction" element={<DistractionPage />} />
+        <Route path="distractions" element={<DistractionPage />} />
         <Route path="insights" element={<AIIntelligencePage />} />
         <Route path="rewards" element={<StreaksRewardsPage />} />
         <Route path="settings" element={<SettingsPage />} />

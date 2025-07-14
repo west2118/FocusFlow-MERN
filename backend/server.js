@@ -12,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 import userRoutes from "./routes/userRoutes.js";
+import sessionRoutes from "./routes/sessionRoutes.js";
 
 const require = createRequire(import.meta.url);
 const serviceAccount = require("./serviceAccountKey.json");
@@ -32,3 +33,4 @@ mongoose
   .catch((err) => console.log(err));
 
 app.use("/api/", userRoutes);
+app.use("/api/", sessionRoutes);

@@ -7,8 +7,8 @@ export const timers = [
   },
   {
     label: "50 min",
-    value: 50 * 60,
-    breakTime: 10 * 60,
+    value: 5,
+    breakTime: 5,
     desc: "Double",
   },
   {

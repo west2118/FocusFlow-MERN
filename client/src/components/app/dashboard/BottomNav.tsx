@@ -6,8 +6,11 @@ import {
   Flame,
   Settings,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const BottomNav = () => {
+  const navigate = useNavigate();
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-2xl">
       <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
@@ -23,6 +26,7 @@ const BottomNav = () => {
             const Icon = item.icon;
             return (
               <button
+                onClick={() => navigate(`/${item.name.toLocaleLowerCase()}`)}
                 key={index}
                 className={`flex flex-col items-center px-2 py-1 text-sm font-medium rounded-md ${
                   item.active

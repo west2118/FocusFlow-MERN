@@ -1,0 +1,17 @@
+export const sessionCategories = [
+  "Writing",
+  "Studying",
+  "Reading",
+  "Coding",
+  "Designing",
+  "Planning",
+  "Learning",
+  "Researching",
+  "Journaling",
+  "Creative Work",
+  "Administrative Tasks",
+  "Meditation",
+  "Problem Solving",
+  "Brainstorming",
+  "Reviewing Notes",
+];

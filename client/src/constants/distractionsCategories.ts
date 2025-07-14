@@ -1,0 +1,15 @@
+export const distractionCategories = [
+  "Social Media",
+  "Video Streaming",
+  "Gaming",
+  "Online Shopping",
+  "Messaging/Chatting",
+  "Music & Podcasts",
+  "Food & Snacking",
+  "Email & Notifications",
+  "Unrelated Tabs/Web Browsing",
+  "Physical Environment",
+  "Multitasking",
+  "Procrastination",
+  "Mental Wandering",
+];
