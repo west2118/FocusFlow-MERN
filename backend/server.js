@@ -13,6 +13,7 @@ app.use(express.json());
 
 import userRoutes from "./routes/userRoutes.js";
 import sessionRoutes from "./routes/sessionRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 const require = createRequire(import.meta.url);
 const serviceAccount = require("./serviceAccountKey.json");
@@ -34,3 +35,4 @@ mongoose
 
 app.use("/api/", userRoutes);
 app.use("/api/", sessionRoutes);
+app.use("/api/", aiRoutes);

@@ -12,7 +12,6 @@ import LandingPage from "./pages/LandingPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import MySessionsPage from "./pages/MySessionsPage";
 import FocusSessionPage from "./pages/FocusSessionPage";
-import LogDistractionPage from "./pages/LogDistractionPage";
 import AIIntelligencePage from "./pages/AIIntelligencePage";
 import StreaksRewardsPage from "./pages/StreaksRewardsPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -29,7 +28,6 @@ const router = createBrowserRouter(
         <Route path="onboarding" element={<OnboardingPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="focus-session" element={<FocusSessionPage />} />
-        <Route path="log-distraction" element={<LogDistractionPage />} />
         <Route path="distractions" element={<DistractionPage />} />
         <Route path="insights" element={<AIIntelligencePage />} />
         <Route path="rewards" element={<StreaksRewardsPage />} />

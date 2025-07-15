@@ -9,8 +9,25 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import useFetchData from "@/hooks/useFetchData";
+import { useEffect } from "react";
+import type { Session } from "@/types/sessions";
+import { useUserStore } from "@/store/useUserStore";
+import { formatDate } from "@/constants/formatDate";
+import { convertSecToHrAndMin } from "@/constants/convertSecToHrAndMin";
 
 const RecentSessionsCard = () => {
+  const token = useUserStore((state) => state.userToken);
+  const { fetchData, items, loading, error } = useFetchData<Session>();
+
+  useEffect(() => {
+    if (!token) return;
+
+    fetchData("get", "http://localhost:8080/api/three-session", token);
+  }, [token]);
+
+  console.log(items);
+
   return (
     <Card className="shadow-xl bg-white border-none">
       <CardHeader>
@@ -19,46 +36,28 @@ const RecentSessionsCard = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {[
-            {
-              type: "Coding",
-              duration: "45m",
-              time: "9:30 AM",
-              distractionCount: 1,
-            },
-            {
-              type: "Study",
-              duration: "30m",
-              time: "2:15 PM",
-              distractionCount: 2,
-            },
-            {
-              type: "Reading",
-              duration: "30m",
-              time: "4:45 PM",
-              distractionCount: 0,
-            },
-          ].map((session, index) => (
+          {items?.map((session, index) => (
             <div
               key={index}
               className="flex items-center justify-between p-3 border rounded-lg shadow-xl border-gray-200 bg-white">
               <div>
-                <p className="font-medium">{session.type}</p>
+                <p className="font-medium">{session.sessionCategory}</p>
                 <p className="text-sm text-gray-500">
-                  {session.time} • {session.duration}
+                  {formatDate(session.createdAt)} •{" "}
+                  {convertSecToHrAndMin(session.duration)}
                 </p>
               </div>
-              {session.distractionCount > 0 ? (
-                <Badge variant="destructive" className="gap-1">
+              {session?.distractions.length > 0 ? (
+                <Badge className="gap-1 border-red-500 text-red-500">
                   <AlertTriangle className="h-3 w-3" />
-                  {session.distractionCount}
+                  Distracted
                 </Badge>
               ) : (
                 <Badge
                   variant="outline"
                   className="border-emerald-200 text-emerald-700 gap-1">
                   <CheckCircle2 className="h-3 w-3" />
-                  Clean
+                  Focus
                 </Badge>
               )}
             </div>

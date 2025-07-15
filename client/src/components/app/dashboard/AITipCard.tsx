@@ -7,9 +7,43 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Lightbulb, ChevronRight } from "lucide-react";
+import { useUserStore } from "@/store/useUserStore";
+import axios from "axios";
+import { Lightbulb, ChevronRight, Loader } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const AITipCard = () => {
+  const token = useUserStore((state) => state.userToken);
+  const [tipAi, setTipAi] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  let called = false;
+
+  const getSuggestion = async () => {
+    if (called) return;
+    called = true;
+
+    setLoading(true);
+
+    try {
+      const response = await axios.get("http://localhost:8080/api/suggestion");
+
+      console.log("Tip: ", response?.data);
+      setTipAi(response?.data);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    getSuggestion();
+  }, [token]);
+
   return (
     <Card className="shadow-xl bg-white border-none">
       <CardHeader>
@@ -21,15 +55,20 @@ const AITipCard = () => {
       </CardHeader>
       <CardContent>
         <div className="bg-indigo-50 p-4 rounded-lg">
-          <p className="text-indigo-800">
-            "When working on complex tasks, try the '20-minute rule' - commit to
-            working for just 20 minutes. Often, getting started is the hardest
-            part, and you'll likely continue past the 20 minutes."
-          </p>
+          {loading ? (
+            <div className="w-full flex items-center justify-center">
+              <Loader className="animate-spin h-5 w-5 text-indigo-600" />
+            </div>
+          ) : (
+            <p className="text-indigo-800">{tipAi}</p>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">
-        <Button variant="ghost" className="text-indigo-600 gap-1">
+        <Button
+          onClick={getSuggestion}
+          variant="ghost"
+          className="text-indigo-600 gap-1">
           Another tip
           <ChevronRight className="h-4 w-4" />
         </Button>

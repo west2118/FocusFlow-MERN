@@ -25,7 +25,7 @@ const QuickActionsCard = () => {
               <span className="text-lg">Start Timer</span>
             </Button>
           </Link>
-          <Link to="/log-distraction">
+          <Link to="/distractions">
             <Button
               variant="outline"
               className="border-rose-300 text-rose-700 hover:bg-rose-50 py-8 w-full gap-2">

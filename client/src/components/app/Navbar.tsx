@@ -33,6 +33,18 @@ const Navbar = () => {
   const token = useUserStore((state) => state.userToken);
 
   useEffect(() => {
+    if (loading) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [loading]);
+
+  useEffect(() => {
     if (!token) return;
 
     const fetchData = async () => {

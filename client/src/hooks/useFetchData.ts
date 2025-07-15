@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 
 const useFetchData = <T = any>() => {
-  const [items, setItem] = useState<T[]>([]);
+  const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +25,8 @@ const useFetchData = <T = any>() => {
         },
       });
 
-      setItem(response?.data);
+      setItems(response?.data);
+      return response?.data;
     } catch (error: any) {
       setError(error.response?.data?.message || error.message);
     } finally {

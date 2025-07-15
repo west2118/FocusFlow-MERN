@@ -237,318 +237,320 @@ export default function FocusSessionPage() {
         <div>
           <BackToDashboard />
         </div>
-        <Card className="w-full max-w-lg bg-white border-none shadow-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Timer className="h-5 w-5 text-indigo-600" />
-              Start Focus Session
-            </CardTitle>
-            <CardDescription>
-              Set your intention and begin your focused work
-            </CardDescription>
-          </CardHeader>
+        <div className="w-full flex justify-center">
+          <Card className="w-md md:w-lg bg-white border-none shadow-2xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Timer className="h-5 w-5 text-indigo-600" />
+                Start Focus Session
+              </CardTitle>
+              <CardDescription>
+                Set your intention and begin your focused work
+              </CardDescription>
+            </CardHeader>
 
-          <CardContent className="space-y-6">
-            {/* Session Goal Input */}
-            <div className="space-y-2">
-              <Label htmlFor="session-goal">Session Goal</Label>
-              <Input
-                id="session-goal"
-                disabled={isRunning || isFinished}
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                placeholder="What are you focusing on? (e.g. 'Write blog post')"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="session-hours">Session Category</Label>
-              <select
-                id="session-hours"
-                disabled={isRunning || isFinished}
-                value={sessionCategory}
-                onChange={(e) => setSessionCategory(e.target.value)}
-                className={`w-full p-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 
-                ${
-                  isRunning || isFinished
-                    ? "text-gray-400  cursor-not-allowed"
-                    : "text-black"
-                }
-              `}>
-                <option value="" disabled>
-                  Select Session Category
-                </option>
-                {sessionCategories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="session-hours">Focus Duration (Hours)</Label>
-              <select
-                id="session-hours"
-                disabled={isRunning || isFinished}
-                value={selectedHours}
-                onChange={(e) => setSelectedHours(e.target.value)}
-                className={`w-full p-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 
-                ${
-                  isRunning || isFinished
-                    ? "text-gray-400  cursor-not-allowed"
-                    : "text-black"
-                }
-              `}>
-                <option value="" disabled>
-                  Select Focus Hours
-                </option>
-                {focusHours.map((hour) => (
-                  <option key={hour.value} value={hour.value}>
-                    {hour.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Timer Selection */}
-            <div className="space-y-2">
-              <Label>Timer Duration</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {timers.map((option: any) => (
-                  <div key={option.value} className="h-full">
-                    <input
-                      type="radio"
-                      id={`duration-${option.value}`}
-                      name="duration"
-                      disabled={isRunning || isFinished}
-                      value={option.value}
-                      onChange={(e) => {
-                        if (option.value !== "custom") {
-                          setSelectedBreakTime(option.breakTime);
-                          setSelectedFocusTime(Number(e.target.value));
-                          setSecondsLeft(Number(e.target.value));
-                        }
-                      }}
-                      className="hidden peer"
-                      defaultChecked={option.desc === "Pomodoro"}
-                    />
-                    <Label
-                      htmlFor={`duration-${option.value}`}
-                      className="h-full flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-checked:border-indigo-600 peer-checked:bg-indigo-50 peer-checked:text-indigo-600">
-                      <span className="font-medium">{option.label}</span>
-                      {option.desc && (
-                        <span className="text-xs text-muted-foreground">
-                          {option.desc}
-                        </span>
-                      )}
-                    </Label>
-                  </div>
-                ))}
+            <CardContent className="space-y-6">
+              {/* Session Goal Input */}
+              <div className="space-y-2">
+                <Label htmlFor="session-goal">Session Goal</Label>
+                <Input
+                  id="session-goal"
+                  disabled={isRunning || isFinished}
+                  value={goal}
+                  onChange={(e) => setGoal(e.target.value)}
+                  placeholder="What are you focusing on? (e.g. 'Write blog post')"
+                />
               </div>
-            </div>
 
-            {/* Active Timer Display (Static) */}
-            <div className="flex flex-col items-center py-6">
-              <div className="text-center">
-                <div
-                  className={`text-xl font-mono font-bold mb-2 transition-colors duration-300 ${
-                    isFocus ? "text-indigo-800" : "text-green-600"
-                  }`}>
-                  {isFocus
-                    ? isFinished
-                      ? "Total Time"
-                      : "Focus Time"
-                    : "Break Time"}
+              <div className="space-y-2">
+                <Label htmlFor="session-hours">Session Category</Label>
+                <select
+                  id="session-hours"
+                  disabled={isRunning || isFinished}
+                  value={sessionCategory}
+                  onChange={(e) => setSessionCategory(e.target.value)}
+                  className={`w-full p-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                ${
+                  isRunning || isFinished
+                    ? "text-gray-400  cursor-not-allowed"
+                    : "text-black"
+                }
+              `}>
+                  <option value="" disabled>
+                    Select Session Category
+                  </option>
+                  {sessionCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="session-hours">Focus Duration (Hours)</Label>
+                <select
+                  id="session-hours"
+                  disabled={isRunning || isFinished}
+                  value={selectedHours}
+                  onChange={(e) => setSelectedHours(e.target.value)}
+                  className={`w-full p-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                ${
+                  isRunning || isFinished
+                    ? "text-gray-400  cursor-not-allowed"
+                    : "text-black"
+                }
+              `}>
+                  <option value="" disabled>
+                    Select Focus Hours
+                  </option>
+                  {focusHours.map((hour) => (
+                    <option key={hour.value} value={hour.value}>
+                      {hour.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Timer Selection */}
+              <div className="space-y-2">
+                <Label>Timer Duration</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {timers.map((option: any) => (
+                    <div key={option.value} className="h-full">
+                      <input
+                        type="radio"
+                        id={`duration-${option.value}`}
+                        name="duration"
+                        disabled={isRunning || isFinished}
+                        value={option.value}
+                        onChange={(e) => {
+                          if (option.value !== "custom") {
+                            setSelectedBreakTime(option.breakTime);
+                            setSelectedFocusTime(Number(e.target.value));
+                            setSecondsLeft(Number(e.target.value));
+                          }
+                        }}
+                        className="hidden peer"
+                        defaultChecked={option.desc === "Pomodoro"}
+                      />
+                      <Label
+                        htmlFor={`duration-${option.value}`}
+                        className="h-full flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-checked:border-indigo-600 peer-checked:bg-indigo-50 peer-checked:text-indigo-600">
+                        <span className="font-medium">{option.label}</span>
+                        {option.desc && (
+                          <span className="text-xs text-muted-foreground">
+                            {option.desc}
+                          </span>
+                        )}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
-                {isFinished ? (
+              </div>
+
+              {/* Active Timer Display (Static) */}
+              <div className="flex flex-col items-center py-6">
+                <div className="text-center">
                   <div
-                    className={`text-3xl font-mono font-extrabold text-indigo-900 `}>
-                    {convertSecToHrAndMin(secondsElapsed)}
-                  </div>
-                ) : (
-                  <div
-                    className={`text-6xl font-mono font-extrabold ${
-                      isFocus ? "text-indigo-900" : "text-green-800"
+                    className={`text-xl font-mono font-bold mb-2 transition-colors duration-300 ${
+                      isFocus ? "text-indigo-800" : "text-green-600"
                     }`}>
-                    {formatTime(secondsLeft)}
+                    {isFocus
+                      ? isFinished
+                        ? "Total Time"
+                        : "Focus Time"
+                      : "Break Time"}
+                  </div>
+                  {isFinished ? (
+                    <div
+                      className={`text-3xl font-mono font-extrabold text-indigo-900 `}>
+                      {convertSecToHrAndMin(secondsElapsed)}
+                    </div>
+                  ) : (
+                    <div
+                      className={`text-6xl font-mono font-extrabold ${
+                        isFocus ? "text-indigo-900" : "text-green-800"
+                      }`}>
+                      {formatTime(secondsLeft)}
+                    </div>
+                  )}
+                </div>
+                {!isFinished && (
+                  <div className="flex gap-2 mt-6">
+                    {isRunning ? (
+                      <Button onClick={handleReset} variant="outline">
+                        Reset
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleStart}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                        Start Session
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
-              {!isFinished && (
-                <div className="flex gap-2 mt-6">
-                  {isRunning ? (
-                    <Button onClick={handleReset} variant="outline">
-                      Reset
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleStart}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                      Start Session
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
 
-            {/* Session Completion (Hidden by default) */}
-            <div className={`space-y-4 ${isFinished ? "" : "hidden"}`}>
-              <div className="space-y-2">
-                <Label>Session Status</Label>
-                <RadioGroup
-                  value={sessionStatus}
-                  onValueChange={(value) => setSessionState(value)}
-                  className="grid grid-cols-2 gap-2">
-                  <div>
-                    <RadioGroupItem
-                      value="focused"
-                      id="focused"
-                      className="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="focused"
-                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 peer-data-[state=checked]:bg-emerald-50">
-                      <Check className="h-6 w-6 text-emerald-600 mb-1" />
-                      <span className="font-medium">Focused</span>
-                    </Label>
-                  </div>
-                  <div>
-                    <RadioGroupItem
-                      value="interrupted"
-                      id="interrupted"
-                      className="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="interrupted"
-                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-rose-600 peer-data-[state=checked]:bg-rose-50">
-                      <X className="h-6 w-6 text-rose-600 mb-1" />
-                      <span className="font-medium">Interrupted</span>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Distraction Log */}
-              {sessionStatus === "interrupted" && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-1">
-                      <AlertTriangle className="h-4 w-4" />
-                      Distractions
-                    </Label>
-                    <Button
-                      onClick={() => setShowAdd(!showAdd)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-indigo-600">
-                      {showAdd ? (
-                        <>
-                          <Minus className="h-4 w-4 mr-1" />
-                          Hide Add
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="h-4 w-4 mr-1" />
-                          Add
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {showAdd && (
-                    <div className="flex items-end gap-2">
-                      <div className="flex flex-col w-1/2 gap-2">
-                        <Label htmlFor="distraction-category">
-                          Distraction
-                        </Label>
-                        <select
-                          id="distraction-category"
-                          name="distraction"
-                          value={formData.distraction}
-                          onChange={handleChange}
-                          className="p-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 h-10">
-                          <option value="" disabled>
-                            Choose...
-                          </option>
-                          {distractionCategories.map((category) => (
-                            <option key={category} value={category}>
-                              {category}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="flex flex-col w-1/4 gap-2">
-                        <Label htmlFor="distraction-minutes">Minutes</Label>
-                        <Input
-                          id="distraction-minutes"
-                          type="number"
-                          name="minutes"
-                          value={formData.minutes}
-                          onChange={handleChange}
-                          placeholder="e.g. 5"
-                          className="h-10"
-                        />
-                      </div>
-
-                      <div className="w-1/4 flex flex-col gap-2">
-                        <Label className="invisible">Add</Label>
-                        <Button
-                          onClick={handleAddDistraction}
-                          className="h-10 w-full bg-indigo-600 text-white hover:bg-indigo-700">
-                          Add
-                        </Button>
-                      </div>
+              {/* Session Completion (Hidden by default) */}
+              <div className={`space-y-4 ${isFinished ? "" : "hidden"}`}>
+                <div className="space-y-2">
+                  <Label>Session Status</Label>
+                  <RadioGroup
+                    value={sessionStatus}
+                    onValueChange={(value) => setSessionState(value)}
+                    className="grid grid-cols-2 gap-2">
+                    <div>
+                      <RadioGroupItem
+                        value="focused"
+                        id="focused"
+                        className="peer sr-only"
+                      />
+                      <Label
+                        htmlFor="focused"
+                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-emerald-600 peer-data-[state=checked]:bg-emerald-50">
+                        <Check className="h-6 w-6 text-emerald-600 mb-1" />
+                        <span className="font-medium">Focused</span>
+                      </Label>
                     </div>
-                  )}
+                    <div>
+                      <RadioGroupItem
+                        value="interrupted"
+                        id="interrupted"
+                        className="peer sr-only"
+                      />
+                      <Label
+                        htmlFor="interrupted"
+                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-rose-600 peer-data-[state=checked]:bg-rose-50">
+                        <X className="h-6 w-6 text-rose-600 mb-1" />
+                        <span className="font-medium">Interrupted</span>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
 
-                  <div className="space-y-2">
-                    {logDistractions.length > 0 ? (
-                      logDistractions.map((item, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Label>{item.distraction}</Label>
-                          </div>
+                {/* Distraction Log */}
+                {sessionStatus === "interrupted" && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="flex items-center gap-1">
+                        <AlertTriangle className="h-4 w-4" />
+                        Distractions
+                      </Label>
+                      <Button
+                        onClick={() => setShowAdd(!showAdd)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-indigo-600">
+                        {showAdd ? (
+                          <>
+                            <Minus className="h-4 w-4 mr-1" />
+                            Hide Add
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add
+                          </>
+                        )}
+                      </Button>
+                    </div>
 
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {item.minutes} mins
-                            </div>
-
-                            <button
-                              onClick={() => handleRemoveDistraction(index)}
-                              className="text-gray-400 hover:text-red-600">
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
+                    {showAdd && (
+                      <div className="flex items-end gap-2">
+                        <div className="flex flex-col w-1/2 gap-2">
+                          <Label htmlFor="distraction-category">
+                            Distraction
+                          </Label>
+                          <select
+                            id="distraction-category"
+                            name="distraction"
+                            value={formData.distraction}
+                            onChange={handleChange}
+                            className="p-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 h-10">
+                            <option value="" disabled>
+                              Choose...
+                            </option>
+                            {distractionCategories.map((category) => (
+                              <option key={category} value={category}>
+                                {category}
+                              </option>
+                            ))}
+                          </select>
                         </div>
-                      ))
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-gray-500 text-sm p-4 border rounded-md bg-gray-50">
-                        <Clock className="w-5 h-5 mb-1" />
-                        <p>No Distraction Log</p>
+
+                        <div className="flex flex-col w-1/4 gap-2">
+                          <Label htmlFor="distraction-minutes">Minutes</Label>
+                          <Input
+                            id="distraction-minutes"
+                            type="number"
+                            name="minutes"
+                            value={formData.minutes}
+                            onChange={handleChange}
+                            placeholder="e.g. 5"
+                            className="h-10"
+                          />
+                        </div>
+
+                        <div className="w-1/4 flex flex-col gap-2">
+                          <Label className="invisible">Add</Label>
+                          <Button
+                            onClick={handleAddDistraction}
+                            className="h-10 w-full bg-indigo-600 text-white hover:bg-indigo-700">
+                            Add
+                          </Button>
+                        </div>
                       </div>
                     )}
+
+                    <div className="space-y-2">
+                      {logDistractions.length > 0 ? (
+                        logDistractions.map((item, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <Label>{item.distraction}</Label>
+                            </div>
+
+                            <div className="flex items-center gap-3 text-sm text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {item.minutes} mins
+                              </div>
+
+                              <button
+                                onClick={() => handleRemoveDistraction(index)}
+                                className="text-gray-400 hover:text-red-600">
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-gray-500 text-sm p-4 border rounded-md bg-gray-50">
+                          <Clock className="w-5 h-5 mb-1" />
+                          <p>No Distraction Log</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <Button
-                onClick={handlePostSession}
-                className="w-full mt-4 bg-indigo-600 text-white hover:bg-indigo-700">
-                Finish Session
-              </Button>
-            </div>
-          </CardContent>
+                <Button
+                  onClick={handlePostSession}
+                  className="w-full mt-4 bg-indigo-600 text-white hover:bg-indigo-700">
+                  Finish Session
+                </Button>
+              </div>
+            </CardContent>
 
-          <CardFooter className="text-xs text-gray-500">
-            Tip: Close other tabs and put your phone away for maximum focus.
-          </CardFooter>
-        </Card>
+            <CardFooter className="text-xs text-gray-500">
+              Tip: Close other tabs and put your phone away for maximum focus.
+            </CardFooter>
+          </Card>
+        </div>
       </div>
     </div>
   );
