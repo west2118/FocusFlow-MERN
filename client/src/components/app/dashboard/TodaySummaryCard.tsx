@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import { useUserStore } from "@/store/useUserStore";
 import type { Session } from "@/types/sessions";
 import { convertMinsToHoursAndMins } from "@/constants/convertMinsToHoursAndMins";
+import { convertSecToHrAndMin } from "@/constants/convertSecToHrAndMin";
 
 const TodaySummaryCard = () => {
   const user = useUserStore((state) => state.user);
@@ -39,15 +40,15 @@ const TodaySummaryCard = () => {
 
   const calculateMinutes = (sessions: Session[]) => {
     return sessions
-      .flatMap((session) => session.distractions)
-      .reduce((a, b) => a + b.minutes, 0);
+      .flatMap((session) => session.duration)
+      .reduce((a, b) => a + b, 0);
   };
 
   const getTotalDistraction = (sessions: Session[]) => {
     return sessions.flatMap((session) => session.distractions);
   };
 
-  const userDailyTarget = Number(user?.dailyTarget.charAt(0)) * 60;
+  const userDailyTarget = Number(user?.dailyTarget.charAt(0)) * 60 * 60;
 
   const todayTime = calculateMinutes(itemsToday);
   const yesterdayTime = calculateMinutes(itemsYesterday);
@@ -59,7 +60,7 @@ const TodaySummaryCard = () => {
   const differenceDistraction =
     todayDistraction.length - yesterdayDistraction.length;
 
-  const goalProgress = (todayTime / userDailyTarget) * 100;
+  const goalProgress = Math.min((todayTime / userDailyTarget) * 100, 100);
 
   return (
     <Card className="shadow-xl bg-white border-none">
@@ -75,12 +76,12 @@ const TodaySummaryCard = () => {
               <p className="text-sm">Total Focus Time</p>
             </div>
             <p className="text-2xl font-bold text-indigo-800 mt-1">
-              {convertMinsToHoursAndMins(todayTime)}
+              {convertSecToHrAndMin(todayTime)}
             </p>
             <p className="text-xs text-indigo-500">
               {Number(differenceTime) > 0
-                ? `↑ ${convertMinsToHoursAndMins(differenceTime)} `
-                : `↓ ${convertMinsToHoursAndMins(Math.abs(differenceTime))} `}
+                ? `↑ ${convertSecToHrAndMin(differenceTime)} `
+                : `↓ ${convertSecToHrAndMin(Math.abs(differenceTime))} `}
               from yesterday
             </p>
           </div>
@@ -105,13 +106,13 @@ const TodaySummaryCard = () => {
               <p className="text-sm">Daily Goal Progress</p>
             </div>
             <p className="text-2xl font-bold text-emerald-800 mt-1">
-              {Math.floor(goalProgress)}%
+              {Math.round(goalProgress)}%
             </p>
             <div className="mt-2">
               <Progress value={goalProgress} className="h-2 bg-emerald-100" />
             </div>
             <p className="text-xs text-emerald-500 mt-1">
-              {convertMinsToHoursAndMins(userDailyTarget).slice(0, 2)} goal
+              {user?.dailyTarget.slice(0, 1)}hrs goal
             </p>
           </div>
         </div>

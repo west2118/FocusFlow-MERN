@@ -16,25 +16,136 @@ import {
   Clock,
   Zap,
 } from "lucide-react";
+import useFetchData from "@/hooks/useFetchData";
+import { useEffect } from "react";
+import { useUserStore } from "@/store/useUserStore";
+import DistractionAnalysis from "@/components/app/insights/DistractionAnalysis";
+import type { Session } from "@/types/sessions";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
+import { convertSecToHrAndMin } from "@/constants/convertSecToHrAndMin";
+
+const daysName = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const colors = [
+  "#10b981",
+  "#f59e0b",
+  "#f43f5e",
+  "#f59e0b",
+  "#10b981",
+  "#f43f5e",
+  "#10b981",
+];
+
+// Sample data
+const focusTrends = [
+  { day: "Mon", value: 65 },
+  { day: "Tue", value: 80 },
+  { day: "Wed", value: 45 },
+  { day: "Thu", value: 70 },
+  { day: "Fri", value: 90 },
+  { day: "Sat", value: 30 },
+  { day: "Sun", value: 20 },
+];
+
+const commonDistractions = [
+  { name: "Social Media", count: 12, impact: "High" },
+  { name: "Phone Notifications", count: 8, impact: "Medium" },
+  { name: "Email Checking", count: 5, impact: "Medium" },
+  { name: "Web Browsing", count: 4, impact: "Low" },
+];
 
 export default function AIIntelligencePage() {
-  // Sample data
-  const focusTrends = [
-    { day: "Mon", value: 65 },
-    { day: "Tue", value: 80 },
-    { day: "Wed", value: 45 },
-    { day: "Thu", value: 70 },
-    { day: "Fri", value: 90 },
-    { day: "Sat", value: 30 },
-    { day: "Sun", value: 20 },
-  ];
+  const user = useUserStore((state) => state.user);
+  const token = useUserStore((state) => state.userToken);
+  const { fetchData, items, error, loading } = useFetchData<Session>();
 
-  const commonDistractions = [
-    { name: "Social Media", count: 12, impact: "High" },
-    { name: "Phone Notifications", count: 8, impact: "Medium" },
-    { name: "Email Checking", count: 5, impact: "Medium" },
-    { name: "Web Browsing", count: 4, impact: "Low" },
-  ];
+  useEffect(() => {
+    if (!token) return;
+
+    fetchData(
+      "get",
+      "http://localhost:8080/api/range-session?range=lastWeek",
+      token
+    );
+  }, [token]);
+
+  const getLastWeekDates = () => {
+    const today = new Date();
+    const day = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - 7 - (day === 0 ? 6 : day - 1));
+
+    const weekDates = [];
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      const formatted = date.toISOString().split("T")[0];
+      weekDates.push(formatted);
+    }
+
+    return weekDates;
+  };
+
+  const weekLastWeekDates = getLastWeekDates();
+
+  const calculateSeconds = (date: string) => {
+    const filteredItems = items.filter(
+      (item) => item.createdAt.split("T")[0] === date
+    );
+
+    return filteredItems
+      .flatMap((item) => item.duration)
+      .reduce((acc, curr) => acc + curr, 0);
+  };
+
+  const allDistractions = items.flatMap((item) => item.distractions);
+
+  const commonDistractions =
+    allDistractions?.reduce((acc, curr) => {
+      acc[curr.distraction] = (acc[curr.distraction] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>) || {};
+
+  const data = weekDays.map((day, index) => ({
+    name: day,
+    value: calculateSeconds(weekLastWeekDates[index]),
+    fill: colors[index],
+  }));
+
+  const days = daysName.map((day, index) => ({
+    day,
+    value: calculateSeconds(weekLastWeekDates[index]),
+  }));
+
+  const getHighOrLowDay = (category: string) => {
+    if (category === "high") {
+      return days.reduce((max, curr) => (curr.value > max.value ? curr : max));
+    } else if (category === "low") {
+      return days.reduce((max, curr) => (curr.value < max.value ? curr : max));
+    }
+  };
+
+  const bestDay = getHighOrLowDay("high");
+  const badDay = getHighOrLowDay("low");
+
+  const dailyTarget = Number(user?.dailyTarget.charAt(0)) * 60 * 60;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -69,79 +180,69 @@ export default function AIIntelligencePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-end justify-between h-48 mt-4 gap-1">
-                  {focusTrends.map((day, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col items-center flex-1">
-                      <div
-                        className="w-full bg-indigo-100 rounded-t-sm hover:bg-indigo-200 transition-colors"
-                        style={{ height: `${day.value}%` }}
+                <div className="h-58 mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={data}
+                      margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="name" />
+                      <YAxis
+                        tickFormatter={(value) => {
+                          const hours = value / 3600;
+                          return hours % 1 === 0
+                            ? `${hours}h`
+                            : `${hours.toFixed(1)}h`;
+                        }}
                       />
-                      <span className="text-xs mt-2 text-gray-500">
-                        {day.day}
-                      </span>
-                    </div>
-                  ))}
+                      <Tooltip
+                        formatter={(value) => [
+                          `${convertSecToHrAndMin(Number(value))}`,
+                          "Duration",
+                        ]}
+                        labelFormatter={(label) => `Day: ${label}`}
+                      />
+                      <Bar
+                        dataKey="value"
+                        radius={[4, 4, 0, 0]}
+                        animationDuration={1500}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
                 <div className="mt-6 grid grid-cols-2 gap-4">
                   <div className="bg-indigo-50 p-4 rounded-lg">
                     <p className="text-sm text-indigo-600">Best Day</p>
-                    <p className="text-xl font-bold text-indigo-800">Friday</p>
-                    <p className="text-xs text-indigo-500">90% focus rating</p>
+                    <p className="text-xl font-bold text-indigo-800">
+                      {bestDay?.day}
+                    </p>
+                    <p className="text-xs text-indigo-500">
+                      {Math.min(
+                        (Number(bestDay?.value) / dailyTarget) * 100,
+                        100
+                      )}
+                      % focus rating
+                    </p>
                   </div>
                   <div className="bg-rose-50 p-4 rounded-lg">
                     <p className="text-sm text-rose-600">Needs Improvement</p>
-                    <p className="text-xl font-bold text-rose-800">Saturday</p>
-                    <p className="text-xs text-rose-500">30% focus rating</p>
+                    <p className="text-xl font-bold text-rose-800">
+                      {badDay?.day}
+                    </p>
+                    <p className="text-xs text-rose-500">
+                      {Math.min(
+                        (Number(badDay?.value) / dailyTarget) * 100,
+                        100
+                      )}
+                      % focus rating
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Distraction Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-rose-600" />
-                  Distraction Analysis
-                </CardTitle>
-                <CardDescription>
-                  What's pulling you away from focus
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {commonDistractions.map((distraction, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="font-medium">{distraction.name}</span>
-                        <span className="text-sm text-gray-500">
-                          {distraction.count} times ({distraction.impact}{" "}
-                          impact)
-                        </span>
-                      </div>
-                      <Progress
-                        value={(distraction.count / 12) * 100}
-                        className="h-2 bg-gray-100"
-                        indicatorColor={
-                          distraction.impact === "High"
-                            ? "bg-rose-500"
-                            : distraction.impact === "Medium"
-                            ? "bg-amber-500"
-                            : "bg-emerald-500"
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="ghost" className="text-indigo-600">
-                  View detailed breakdown
-                </Button>
-              </CardFooter>
-            </Card>
+            <DistractionAnalysis commonDistractions={commonDistractions} />
           </div>
 
           {/* Right Column */}

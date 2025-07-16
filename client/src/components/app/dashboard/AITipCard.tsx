@@ -60,7 +60,7 @@ const AITipCard = () => {
               <Loader className="animate-spin h-5 w-5 text-indigo-600" />
             </div>
           ) : (
-            <p className="text-indigo-800">{tipAi}</p>
+            <p className="text-indigo-800">{tipAi || "Loading..."}</p>
           )}
         </div>
       </CardContent>

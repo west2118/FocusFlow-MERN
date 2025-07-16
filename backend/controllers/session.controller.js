@@ -120,6 +120,31 @@ const getUserRangeSession = async (req, res) => {
           999
         )
       );
+    } else if (range === "lastWeek") {
+      const dayOfWeek = now.getUTCDay();
+      const daySinceMonday = (dayOfWeek + 6) % 7;
+
+      start = new Date(
+        Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate() - daySinceMonday - 7,
+          0,
+          0,
+          0
+        )
+      );
+      end = new Date(
+        Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate() - daySinceMonday - 1,
+          23,
+          59,
+          59,
+          999
+        )
+      );
     }
 
     const sessions = await Session.find({
